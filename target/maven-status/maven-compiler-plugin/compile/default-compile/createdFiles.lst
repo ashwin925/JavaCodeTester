@@ -1,0 +1,5 @@
+com\yourcompany\mysimpleapi\controller\MyController.class
+com\yourcompany\mysimpleapi\model\Item.class
+com\yourcompany\mysimpleapi\service\ItemService.class
+com\yourcompany\mysimpleapi\MySimpleApiApplication.class
+com\yourcompany\mysimpleapi\repository\ItemRepository.class
