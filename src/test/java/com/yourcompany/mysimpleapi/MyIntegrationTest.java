@@ -27,7 +27,7 @@ public class MyIntegrationTest {
     private ItemRepository itemRepository;
 
     @AfterEach
-    public void resetDb() {
+    public void afterEach() {
         itemRepository.deleteAll();
     }
 
@@ -37,14 +37,15 @@ public class MyIntegrationTest {
         itemRepository.deleteAll();
     }
 
+
     @Test
     public void whenGetItems_thenReturnsListOfItems() {
-                // given
+        // given
         itemRepository.save(new Item(null, "Item 1", "Desc 1"));
 
         // when
         ResponseEntity<Item[]> response = restTemplate.getForEntity("/items", Item[].class);
-
+        assert response.getBody() != null;
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).hasSize(1);
