@@ -11,12 +11,8 @@ import java.util.Optional;
 @Service
 public class ItemService {
 
-    private final ItemRepository itemRepository;
-
     @Autowired
-    public ItemService(ItemRepository itemRepository) {
-        this.itemRepository = itemRepository;
-    }
+    private ItemRepository itemRepository;
 
     public List<Item> getAllItems() {
         return itemRepository.findAll();
@@ -46,3 +42,4 @@ public class ItemService {
         }).orElse(false);
     }
 }
+

@@ -13,12 +13,9 @@ import java.util.List;
 @RequestMapping("/items")
 public class MyController {
 
-    private final ItemService itemService;
-
     @Autowired
-    public MyController(ItemService itemService) {
-        this.itemService = itemService;
-    }
+    private ItemService itemService;
+
     @GetMapping
     public List<Item> getAllItems() {
         return itemService.getAllItems();
@@ -49,3 +46,4 @@ public class MyController {
         return itemService.deleteItem(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
+

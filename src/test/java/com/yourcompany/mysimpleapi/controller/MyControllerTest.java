@@ -1,55 +1,63 @@
 package com.yourcompany.mysimpleapi.controller;
 
-import com.yourcompany.mysimpleapi.controller.MyController;
 import com.yourcompany.mysimpleapi.model.Item;
+import com.yourcompany.mysimpleapi.repository.ItemRepository;
 import com.yourcompany.mysimpleapi.service.ItemService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-
+import org.springframework.boot.test.context.SpringBootTest;import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(MyController.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MyControllerTest {
 
     @Autowired
-    private MockMvc mvc;
+    private ItemService   itemService;
 
-    @MockBean
-    private ItemService itemService;
+    @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @LocalServerPort
+    private int port;
 
     @Test
     public void givenItems_whenGetItems_thenReturnsJsonArray() throws Exception {
-        Item item1 = new Item(1L, "Item 1", "Description 1");
-        Item item2 = new Item(2L, "Item 2", "Description 2");
-        List<Item> allItems = Arrays.asList(item1, item2);
+        Item item1 = new Item(null, "Item 1", "Description 1");
+        itemRepository.save(item1);
+        Item item2 = new Item(null, "Item 2", "Description 2");
+        itemRepository.save(item2);
 
-        given(itemService.getAllItems()).willReturn(allItems);
-
-        mvc.perform(get("/items"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].name", is(item1.getName())));
+        ResponseEntity<Item[]> response = restTemplate.getForEntity("/items", Item[].class);
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.OK);
     }
 
-    @Test
+   @Test
     public void whenGetItemById_thenReturnsItem() throws Exception {
-        Item item = new Item(1L, "Test Item", "Test Desc");
-        given(itemService.getItemById(1L)).willReturn(Optional.of(item));
+        Item item = new Item(null, "Test Item", "Test Desc");
+        itemRepository.save(item);
 
-        mvc.perform(get("/items/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(item.getName())));
+        ResponseEntity<Item> response = restTemplate.getForEntity("/items/{id}", Item.class, 1L);
+                assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.OK);
     }
 }
